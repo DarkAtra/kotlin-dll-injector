@@ -48,7 +48,7 @@ internal object ProcessUtils {
             modules,
             modules.size,
             modulesSizeNeeded,
-            Psapi.LIST_MODULES_32BIT
+            Psapi.LIST_MODULES_ALL
         )
         if (!successful) {
             throw InjectionException("Failed to enumerate process modules, error code: ${Kernel32.INSTANCE.GetLastError()}")
@@ -82,26 +82,6 @@ internal object ProcessUtils {
             4
         ) { it: Memory ->
             it.getInt(0)
-        }
-    }
-
-    /**
-     * Reads a 32-bit integer from the given address on x86 and a 64-bit integer on x64.
-     */
-    fun readPointer(processHandle: WinNT.HANDLE, address: Pointer, processArchitecture: ProcessArchitecture): Long {
-
-        return readProcessMemory(
-            processHandle,
-            address,
-            when (processArchitecture) {
-                ProcessArchitecture.X_64 -> 8
-                ProcessArchitecture.X_86 -> 4
-            }
-        ) { it: Memory ->
-            when (processArchitecture) {
-                ProcessArchitecture.X_64 -> it.getLong(0)
-                ProcessArchitecture.X_86 -> it.getInt(0).toLong()
-            }
         }
     }
 

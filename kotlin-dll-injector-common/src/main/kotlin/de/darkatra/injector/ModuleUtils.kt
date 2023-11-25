@@ -5,11 +5,6 @@ import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinNT
-import de.darkatra.injector.PEOffset.EXPORTED_FUNCTION_ADDRESSES_FROM_EXPORT_TABLE
-import de.darkatra.injector.PEOffset.EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE
-import de.darkatra.injector.PEOffset.EXPORTED_FUNCTION_ORDINALS_FROM_EXPORT_TABLE
-import de.darkatra.injector.PEOffset.EXPORT_TABLE_FROM_SIGNATURE
-import de.darkatra.injector.PEOffset.NUMBER_OF_EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE
 import de.darkatra.injector.jna.Kernel32
 import de.darkatra.injector.jna.LPMODULEINFO
 import de.darkatra.injector.jna.Psapi
@@ -45,37 +40,36 @@ internal object ModuleUtils {
 
         val processArchitecture: ProcessArchitecture = ProcessUtils.getProcessArchitecture(processHandle, moduleBaseAddress)
 
-        val offsetToExportTable = ProcessUtils.readPointer(
+        val offsetToExportTable = ProcessUtils.readInt(
             processHandle,
-            Pointer.createConstant(moduleBaseAddress + offsetToPESignature + EXPORT_TABLE_FROM_SIGNATURE.getOffset(processArchitecture)),
-            processArchitecture
+            Pointer.createConstant(
+                moduleBaseAddress + offsetToPESignature + when (processArchitecture) {
+                    ProcessArchitecture.X_86 -> EXPORT_TABLE_FROM_SIGNATURE_32
+                    ProcessArchitecture.X_64 -> EXPORT_TABLE_FROM_SIGNATURE_64
+                }
+            )
         )
 
         val numberOfExportedFunctions = ProcessUtils.readInt(
             processHandle,
             Pointer.createConstant(
-                moduleBaseAddress + offsetToExportTable + NUMBER_OF_EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE.getOffset(processArchitecture)
+                moduleBaseAddress + offsetToExportTable + NUMBER_OF_EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE
             )
         )
 
-        val offsetToExportedFunctionNamesTable = ProcessUtils.readPointer(
+        val offsetToExportedFunctionNamesTable = ProcessUtils.readInt(
             processHandle,
-            Pointer.createConstant(moduleBaseAddress + offsetToExportTable + EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE.getOffset(processArchitecture)),
-            processArchitecture
+            Pointer.createConstant(moduleBaseAddress + offsetToExportTable + EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE)
         )
 
         val functionIndex = (0..<numberOfExportedFunctions)
             .map { i ->
 
-                val offsetToFunctionName = ProcessUtils.readPointer(
+                val offsetToFunctionName = ProcessUtils.readInt(
                     processHandle,
                     Pointer.createConstant(
-                        moduleBaseAddress + offsetToExportedFunctionNamesTable + i * when (processArchitecture) {
-                            ProcessArchitecture.X_64 -> 8
-                            ProcessArchitecture.X_86 -> 4
-                        }
-                    ),
-                    processArchitecture
+                        moduleBaseAddress + offsetToExportedFunctionNamesTable + i * 4
+                    )
                 )
 
                 val maxFunctionNameLength = name.length
@@ -85,7 +79,8 @@ internal object ModuleUtils {
                         Pointer.createConstant(moduleBaseAddress + offsetToFunctionName),
                         maxFunctionNameLength
                     ) { it: Memory ->
-                        it.getString(0)
+                        // it.getString(0) yields wrong results when the target process is running in x64 for some reason (reads over memory bounds)
+                        Native.toString(it.getByteArray(0, maxFunctionNameLength))
                     }
 
                 Pair(i, functionName)
@@ -96,10 +91,9 @@ internal object ModuleUtils {
             ?.first
             ?: return null
 
-        val offsetToExportedFunctionOrdinalsTable = ProcessUtils.readPointer(
+        val offsetToExportedFunctionOrdinalsTable = ProcessUtils.readInt(
             processHandle,
-            Pointer.createConstant(moduleBaseAddress + offsetToExportTable + EXPORTED_FUNCTION_ORDINALS_FROM_EXPORT_TABLE.getOffset(processArchitecture)),
-            processArchitecture
+            Pointer.createConstant(moduleBaseAddress + offsetToExportTable + EXPORTED_FUNCTION_ORDINALS_FROM_EXPORT_TABLE)
         )
 
         val functionOrdinal = ProcessUtils.readShort(
@@ -107,25 +101,16 @@ internal object ModuleUtils {
             Pointer.createConstant(moduleBaseAddress + offsetToExportedFunctionOrdinalsTable + functionIndex * 2)
         )
 
-        val offsetToExportedFunctionAddressTable = ProcessUtils.readPointer(
+        val offsetToExportedFunctionAddressTable = ProcessUtils.readInt(
             processHandle,
             Pointer.createConstant(
-                moduleBaseAddress + offsetToExportTable + EXPORTED_FUNCTION_ADDRESSES_FROM_EXPORT_TABLE.getOffset(
-                    processArchitecture
-                )
-            ),
-            processArchitecture
+                moduleBaseAddress + offsetToExportTable + EXPORTED_FUNCTION_ADDRESSES_FROM_EXPORT_TABLE
+            )
         )
 
-        val functionAddress = ProcessUtils.readPointer(
+        val functionAddress = ProcessUtils.readInt(
             processHandle,
-            Pointer.createConstant(
-                moduleBaseAddress + offsetToExportedFunctionAddressTable + functionOrdinal * when (processArchitecture) {
-                    ProcessArchitecture.X_64 -> 8
-                    ProcessArchitecture.X_86 -> 4
-                }
-            ),
-            processArchitecture
+            Pointer.createConstant(moduleBaseAddress + offsetToExportedFunctionAddressTable + functionOrdinal * 4)
         )
 
         return Pointer.createConstant(moduleBaseAddress + functionAddress)

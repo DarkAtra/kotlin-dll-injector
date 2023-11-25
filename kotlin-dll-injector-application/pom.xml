@@ -10,7 +10,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>kotlin-dll-injector-common</artifactId>
+    <artifactId>kotlin-dll-injector-application</artifactId>
 
     <dependencies>
         <!-- Kotlin -->
@@ -19,10 +19,16 @@
             <artifactId>kotlin-stdlib</artifactId>
         </dependency>
 
-        <!-- JNA -->
+        <!-- Injector -->
         <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
+            <groupId>de.darkatra.injector</groupId>
+            <artifactId>kotlin-dll-injector-common</artifactId>
+        </dependency>
+
+        <!-- Flatlaf -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
         </dependency>
     </dependencies>
 </project>

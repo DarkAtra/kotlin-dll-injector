@@ -38,7 +38,7 @@
     </distributionManagement>
 
     <artifactId>kotlin-dll-injector</artifactId>
-    <groupId>de.darkatra</groupId>
+    <groupId>de.darkatra.injector</groupId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
@@ -47,6 +47,7 @@
     <url>https://github.com/DarkAtra/kotlin-dll-injector</url>
 
     <modules>
+        <module>kotlin-dll-injector-application</module>
         <module>kotlin-dll-injector-common</module>
     </modules>
 
@@ -61,9 +62,10 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
 
-        <kotlin.version>1.9.20</kotlin.version>
+        <kotlin.version>1.9.21</kotlin.version>
         <java.version>11</java.version>
         <jna.version>5.13.0</jna.version>
+        <flatlaf.version>3.2.5</flatlaf.version>
 
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <dokka-maven-plugin.version>1.9.10</dokka-maven-plugin.version>
@@ -78,11 +80,25 @@
                 <version>${kotlin.version}</version>
             </dependency>
 
+            <!-- Injector -->
+            <dependency>
+                <groupId>de.darkatra.injector</groupId>
+                <artifactId>kotlin-dll-injector-common</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+
             <!-- JNA -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna-platform</artifactId>
                 <version>${jna.version}</version>
+            </dependency>
+
+            <!-- Flatlaf -->
+            <dependency>
+                <groupId>com.formdev</groupId>
+                <artifactId>flatlaf</artifactId>
+                <version>${flatlaf.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

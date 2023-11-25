@@ -4,30 +4,18 @@ package de.darkatra.injector
 // 0x3c into the dll - RVA of PE signature
 internal const val OFFSET_TO_PE_SIGNATURE_POINTER = 0x3c
 
-internal enum class PEOffset(
-    private val offset32: Int,
-    private val offset64: Int
-) {
+// RVA of Export Table
+internal const val EXPORT_TABLE_FROM_SIGNATURE_32 = 0x78
+internal const val EXPORT_TABLE_FROM_SIGNATURE_64 = 0x88
 
-    // RVA of Export Table
-    EXPORT_TABLE_FROM_SIGNATURE(0x78, 0x88),
+// Number of function names exported by a module
+internal const val NUMBER_OF_EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE = 0x18
 
-    // Number of function names exported by a module
-    NUMBER_OF_EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE(0x18, 0x18),
+// RVA of Address Table - addresses of exported functions
+internal const val EXPORTED_FUNCTION_ADDRESSES_FROM_EXPORT_TABLE = 0x1c
 
-    // RVA of Address Table - addresses of exported functions
-    EXPORTED_FUNCTION_ADDRESSES_FROM_EXPORT_TABLE(0x1c, 0x1c),
+// RVA of Name Pointer Table - addresses of exported function names
+internal const val EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE = 0x20
 
-    // RVA of Name Pointer Table - addresses of exported function names
-    EXPORTED_FUNCTION_NAMES_FROM_EXPORT_TABLE(0x20, 0x20),
-
-    // RVA of Ordinal Table - function order number as listed in the table
-    EXPORTED_FUNCTION_ORDINALS_FROM_EXPORT_TABLE(0x24, 0x24);
-
-    fun getOffset(processArchitecture: ProcessArchitecture): Int {
-        return when (processArchitecture) {
-            ProcessArchitecture.X_86 -> offset32
-            ProcessArchitecture.X_64 -> offset64
-        }
-    }
-}
+// RVA of Ordinal Table - function order number as listed in the table
+internal const val EXPORTED_FUNCTION_ORDINALS_FROM_EXPORT_TABLE = 0x24
