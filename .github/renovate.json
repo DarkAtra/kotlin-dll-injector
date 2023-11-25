@@ -12,6 +12,10 @@
     ],
     "packageRules": [
         {
+            "matchPackagePatterns": "de.darkatra.injector:*",
+            "enabled": false
+        },
+        {
             "matchPackagePatterns": "*",
             "allowedVersions": "!/-.+\\.[0-9]+$/"
         }
