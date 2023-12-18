@@ -64,7 +64,7 @@
 
         <kotlin.version>1.9.21</kotlin.version>
         <java.version>11</java.version>
-        <jna.version>5.13.0</jna.version>
+        <jna.version>5.14.0</jna.version>
         <flatlaf.version>3.2.5</flatlaf.version>
 
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
