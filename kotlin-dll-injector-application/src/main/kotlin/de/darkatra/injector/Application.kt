@@ -4,6 +4,8 @@ import com.formdev.flatlaf.FlatLightLaf
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Rectangle
+import java.io.File
+import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -11,6 +13,7 @@ import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JComboBox
+import javax.swing.JFileChooser
 import javax.swing.JFrame
 import javax.swing.JOptionPane
 import javax.swing.JPanel
@@ -37,7 +40,27 @@ class Application {
                 .toTypedArray()
 
             val processSelect = JComboBox(processes)
+
+            val dllBox = JPanel().apply {
+                layout = BorderLayout()
+            }
+
             val dllSelect = JTextField("Absolute Dll Path")
+            val dllFileSelectButton = JButton("Select Dll").apply {
+                addActionListener {
+                    JFileChooser().apply {
+                        preferredSize = Dimension(800, 600)
+                        fileSelectionMode = JFileChooser.FILES_ONLY
+                        currentDirectory = File(System.getProperty("user.home") + FileSystems.getDefault().separator + "Desktop")
+                        showOpenDialog(null)
+                    }.selectedFile?.let { file ->
+                        dllSelect.text = file.absolutePath
+                    }
+                }
+            }
+
+            dllBox.add(dllSelect, BorderLayout.CENTER)
+            dllBox.add(dllFileSelectButton, BorderLayout.EAST)
 
             val container = JPanel().apply {
                 setBorder(EmptyBorder(20, 20, 20, 20))
@@ -48,7 +71,7 @@ class Application {
 
                     add(processSelect)
                     add(Box.createRigidArea(Dimension(0, 10)))
-                    add(dllSelect)
+                    add(dllBox)
                 })
                 add(
                     JButton("Inject").apply {
