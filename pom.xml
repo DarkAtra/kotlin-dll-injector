@@ -65,7 +65,7 @@
         <kotlin.version>1.9.22</kotlin.version>
         <java.version>11</java.version>
         <jna.version>5.14.0</jna.version>
-        <flatlaf.version>3.2.5</flatlaf.version>
+        <flatlaf.version>3.4</flatlaf.version>
 
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <dokka-maven-plugin.version>1.9.10</dokka-maven-plugin.version>
