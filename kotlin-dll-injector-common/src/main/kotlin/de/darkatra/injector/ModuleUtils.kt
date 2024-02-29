@@ -3,9 +3,9 @@ package de.darkatra.injector
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
+import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinNT
-import de.darkatra.injector.jna.Kernel32
 import de.darkatra.injector.jna.LPMODULEINFO
 import de.darkatra.injector.jna.Psapi
 

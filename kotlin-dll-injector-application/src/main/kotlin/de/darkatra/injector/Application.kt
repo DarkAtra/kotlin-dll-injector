@@ -35,7 +35,7 @@ class Application {
 
             val processes = streamProcesses()
                 .map { Process(it.info().command().get().substringAfterLast("\\"), it.pid()) }
-                .sorted(Comparator.comparing { it.name })
+                .sorted(Comparator.comparing(Process::name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList())
                 .toTypedArray()
 

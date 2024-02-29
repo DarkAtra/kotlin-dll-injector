@@ -3,6 +3,7 @@ package de.darkatra.injector
 import com.sun.jna.Memory
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.BaseTSD
+import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.WinNT.HANDLE
 import com.sun.jna.platform.win32.WinNT.MEM_COMMIT
 import com.sun.jna.platform.win32.WinNT.MEM_RESERVE
@@ -12,7 +13,6 @@ import com.sun.jna.platform.win32.WinNT.PROCESS_QUERY_INFORMATION
 import com.sun.jna.platform.win32.WinNT.PROCESS_VM_OPERATION
 import com.sun.jna.platform.win32.WinNT.PROCESS_VM_READ
 import com.sun.jna.platform.win32.WinNT.PROCESS_VM_WRITE
-import de.darkatra.injector.jna.Kernel32
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
