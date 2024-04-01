@@ -39,7 +39,7 @@
 
     <artifactId>kotlin-dll-injector</artifactId>
     <groupId>de.darkatra.injector</groupId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
 
     <name>${artifactId}</name>
@@ -84,7 +84,7 @@
             <dependency>
                 <groupId>de.darkatra.injector</groupId>
                 <artifactId>kotlin-dll-injector-common</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
             </dependency>
 
             <!-- JNA -->
