@@ -76,7 +76,7 @@ object Injector {
         return Kernel32.INSTANCE.VirtualAllocEx(
             processHandle,
             null,
-            BaseTSD.SIZE_T(string.length + 1L),
+            BaseTSD.SIZE_T(string.toByteArray(StandardCharsets.UTF_8).size + 1L),
             MEM_RESERVE or MEM_COMMIT,
             PAGE_EXECUTE_READWRITE
         )
@@ -84,7 +84,7 @@ object Injector {
 
     private fun writeStringToMemory(processHandle: HANDLE, memoryPointer: Pointer, string: String): Boolean {
 
-        val stringLength = string.length + 1L
+        val stringLength = string.toByteArray(StandardCharsets.UTF_8).size + 1L
         return Memory(stringLength).use { memory ->
             Kernel32.INSTANCE.WriteProcessMemory(
                 processHandle,
