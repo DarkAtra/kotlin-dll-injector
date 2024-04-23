@@ -1,6 +1,7 @@
 package de.darkatra.injector
 
 import com.sun.jna.Memory
+import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.BaseTSD
 import com.sun.jna.platform.win32.Kernel32
@@ -76,7 +77,7 @@ object Injector {
         return Kernel32.INSTANCE.VirtualAllocEx(
             processHandle,
             null,
-            BaseTSD.SIZE_T(string.toByteArray(StandardCharsets.UTF_8).size + 1L),
+            BaseTSD.SIZE_T(Native.toByteArray(string, StandardCharsets.UTF_8).size + 1L),
             MEM_RESERVE or MEM_COMMIT,
             PAGE_EXECUTE_READWRITE
         )
@@ -84,7 +85,7 @@ object Injector {
 
     private fun writeStringToMemory(processHandle: HANDLE, memoryPointer: Pointer, string: String): Boolean {
 
-        val stringLength = string.toByteArray(StandardCharsets.UTF_8).size + 1L
+        val stringLength = Native.toByteArray(string, StandardCharsets.UTF_8).size + 1L
         return Memory(stringLength).use { memory ->
             Kernel32.INSTANCE.WriteProcessMemory(
                 processHandle,
