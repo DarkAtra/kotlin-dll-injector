@@ -54,21 +54,22 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
+        <kotlin.version>2.0.10</kotlin.version>
+        <java.version>17</java.version>
 
-        <kotlin.version>2.0.0</kotlin.version>
-        <java.version>11</java.version>
         <jna.version>5.14.0</jna.version>
         <flatlaf.version>3.5.1</flatlaf.version>
 
+        <maven-surefire-plugin.version>3.4.0</maven-surefire-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <dokka-maven-plugin.version>1.9.20</dokka-maven-plugin.version>
+        <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -128,6 +129,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <jvmTarget>${java.version}</jvmTarget>
+                    <args>
+                        <arg>-Xjsr305=strict</arg>
+                        <arg>-Xemit-jvm-type-annotations</arg>
+                    </args>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
@@ -157,4 +165,49 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>sign-with-gpg</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <keyname>6AC5B1D7</keyname>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>publish-ossrh</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>
