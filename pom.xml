@@ -60,11 +60,11 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
-        <kotlin.version>2.0.21</kotlin.version>
+        <kotlin.version>2.1.0</kotlin.version>
         <java.version>17</java.version>
 
-        <jna.version>5.15.0</jna.version>
-        <flatlaf.version>3.5.2</flatlaf.version>
+        <jna.version>5.16.0</jna.version>
+        <flatlaf.version>3.5.4</flatlaf.version>
 
         <maven-surefire-plugin.version>3.4.0</maven-surefire-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
