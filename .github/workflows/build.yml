@@ -88,5 +88,5 @@ jobs:
           mvn -B -ntp versions:set -DgenerateBackupPoms=false -DnewVersion=${{ needs.build.outputs.new-release-version }}
           mvn -B -ntp -Psign-with-gpg -Ppublish-central-portal clean deploy -DskipTests -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_PORTAL_SECRET }}
