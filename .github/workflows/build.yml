@@ -26,7 +26,7 @@ jobs:
       packages: write
     outputs:
       new-release-published: ${{ steps.semantic-release.outputs.new_release_published }}
-      new-release-version: 1.0.12 # ${{ steps.semantic-release.outputs.new_release_version }}
+      new-release-version: ${{ steps.semantic-release.outputs.new_release_version }}
     steps:
       - uses: actions/checkout@v4.2.2
         with:
@@ -63,7 +63,7 @@ jobs:
     name: Publish to Maven Central
     runs-on: ubuntu-latest
     needs: build
-    # if: needs.build.outputs.new-release-published == 'true'
+    if: needs.build.outputs.new-release-published == 'true'
     steps:
       - uses: actions/checkout@v4.2.2
 
