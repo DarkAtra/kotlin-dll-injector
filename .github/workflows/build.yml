@@ -26,7 +26,7 @@ jobs:
       packages: write
     outputs:
       new-release-published: ${{ steps.semantic-release.outputs.new_release_published }}
-      new-release-version: ${{ steps.semantic-release.outputs.new_release_version }}
+      new-release-version: 1.0.12 # ${{ steps.semantic-release.outputs.new_release_version }}
     steps:
       - uses: actions/checkout@v4.2.2
         with:
@@ -63,7 +63,7 @@ jobs:
     name: Publish to Maven Central
     runs-on: ubuntu-latest
     needs: build
-    if: needs.build.outputs.new-release-published == 'true'
+    # if: needs.build.outputs.new-release-published == 'true'
     steps:
       - uses: actions/checkout@v4.2.2
 
@@ -73,7 +73,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-          server-id: ossrh
+          server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
 
@@ -86,7 +86,7 @@ jobs:
       - name: Publish Package
         run: |
           mvn -B -ntp versions:set -DgenerateBackupPoms=false -DnewVersion=${{ needs.build.outputs.new-release-version }}
-          mvn -B -ntp -Psign-with-gpg -Ppublish-ossrh clean deploy -DskipTests -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          mvn -B -ntp -Psign-with-gpg -Ppublish-central-portal clean deploy -DskipTests -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
