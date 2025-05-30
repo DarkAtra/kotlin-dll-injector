@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>kotlin-dll-injector-common</artifactId>
+    <name>${artifactId}</name>
 
     <dependencies>
         <!-- Kotlin -->
