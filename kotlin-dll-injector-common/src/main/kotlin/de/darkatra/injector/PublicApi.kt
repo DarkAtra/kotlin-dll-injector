@@ -1,6 +1,6 @@
 package de.darkatra.injector
 
 @MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
-annotation class PublicApi
+internal annotation class PublicApi
