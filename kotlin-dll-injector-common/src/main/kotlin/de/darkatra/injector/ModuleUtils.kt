@@ -9,9 +9,28 @@ import com.sun.jna.platform.win32.WinNT
 import de.darkatra.injector.jna.LPMODULEINFO
 import de.darkatra.injector.jna.Psapi
 
-internal object ModuleUtils {
+@PublicApi
+object ModuleUtils {
 
-    fun getModuleName(processHandle: WinNT.HANDLE, module: WinDef.HMODULE): String {
+    @PublicApi
+    fun getModuleBaseAddress(processHandle: WinNT.HANDLE, module: WinDef.HMODULE): WinNT.HANDLE {
+
+        val moduleInfo = LPMODULEINFO()
+        val successful = Psapi.INSTANCE.GetModuleInformation(
+            processHandle,
+            module,
+            moduleInfo,
+            moduleInfo.size()
+        )
+
+        if (!successful) {
+            throw InjectionException("Failed to get module info, error code: ${Kernel32.INSTANCE.GetLastError()}")
+        }
+
+        return moduleInfo.lpBaseOfDll!!
+    }
+
+    internal fun getModuleName(processHandle: WinNT.HANDLE, module: WinDef.HMODULE): String {
 
         val lpImageFileName = ByteArray(WinDef.MAX_PATH)
         val successful = Psapi.INSTANCE.GetModuleBaseNameA(
@@ -28,7 +47,7 @@ internal object ModuleUtils {
         return Native.toString(lpImageFileName)
     }
 
-    fun getRemoteProcAddress(processHandle: WinNT.HANDLE, module: WinDef.HMODULE, name: String): Pointer? {
+    internal fun getRemoteProcAddress(processHandle: WinNT.HANDLE, module: WinDef.HMODULE, name: String): Pointer? {
 
         val moduleBase = getModuleBaseAddress(processHandle, module)
         val moduleBaseAddress = Pointer.nativeValue(moduleBase.pointer)
@@ -114,22 +133,5 @@ internal object ModuleUtils {
         )
 
         return Pointer.createConstant(moduleBaseAddress + functionAddress)
-    }
-
-    private fun getModuleBaseAddress(processHandle: WinNT.HANDLE, module: WinDef.HMODULE): WinNT.HANDLE {
-
-        val moduleInfo = LPMODULEINFO()
-        val successful = Psapi.INSTANCE.GetModuleInformation(
-            processHandle,
-            module,
-            moduleInfo,
-            moduleInfo.size()
-        )
-
-        if (!successful) {
-            throw InjectionException("Failed to get module info, error code: ${Kernel32.INSTANCE.GetLastError()}")
-        }
-
-        return moduleInfo.lpBaseOfDll!!
     }
 }

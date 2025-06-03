@@ -9,19 +9,16 @@ import com.sun.jna.platform.win32.WinNT.HANDLE
 import com.sun.jna.platform.win32.WinNT.MEM_COMMIT
 import com.sun.jna.platform.win32.WinNT.MEM_RESERVE
 import com.sun.jna.platform.win32.WinNT.PAGE_EXECUTE_READWRITE
-import com.sun.jna.platform.win32.WinNT.PROCESS_CREATE_THREAD
-import com.sun.jna.platform.win32.WinNT.PROCESS_QUERY_INFORMATION
-import com.sun.jna.platform.win32.WinNT.PROCESS_VM_OPERATION
-import com.sun.jna.platform.win32.WinNT.PROCESS_VM_READ
-import com.sun.jna.platform.win32.WinNT.PROCESS_VM_WRITE
 import de.darkatra.injector.logging.Logger
 import de.darkatra.injector.logging.NoopLogger
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
+@PublicApi
 object Injector {
 
+    @PublicApi
     fun injectDll(processId: Long, dllPath: Path, logger: Logger = NoopLogger()) {
 
         val dllPathString = dllPath.absolutePathString()
@@ -29,14 +26,14 @@ object Injector {
         logger.info("Attempting to inject '$dllPathString' into process with id '$processId'...")
 
         // get the handle to the process
-        val processHandle = openHandleToProcess(processId)
+        val processHandle = ProcessUtils.openHandleToProcess(processId)
             ?: throw InjectionException("Could not OpenProcess with pid '${processId}', error code: ${Kernel32.INSTANCE.GetLastError()}")
 
         logger.trace("* Process handle: $processHandle")
 
         val loadLibraryPointer = ModuleUtils.getRemoteProcAddress(
             processHandle,
-            ProcessUtils.getRemoteModuleHandle(processHandle, "kernel32.dll")!!,
+            ProcessUtils.getRemoteModuleHandle(processHandle, "kernel32.dll", logger)!!,
             "LoadLibraryA"
         ) ?: throw InjectionException("Failed to get address for LoadLibraryA.")
 
@@ -73,19 +70,6 @@ object Injector {
         Kernel32.INSTANCE.CloseHandle(processHandle)
 
         logger.info("Successfully injected '$dllPathString' into process with id '$processId'.")
-    }
-
-    private fun openHandleToProcess(processId: Long): HANDLE? {
-
-        return Kernel32.INSTANCE.OpenProcess(
-            PROCESS_CREATE_THREAD or
-                PROCESS_QUERY_INFORMATION or
-                PROCESS_VM_OPERATION or
-                PROCESS_VM_READ or
-                PROCESS_VM_WRITE,
-            false,
-            Math.toIntExact(processId)
-        )
     }
 
     private fun allocateMemoryForString(processHandle: HANDLE, string: String): Pointer? {

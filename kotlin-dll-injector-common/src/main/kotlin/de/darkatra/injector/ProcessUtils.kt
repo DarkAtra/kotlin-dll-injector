@@ -4,14 +4,19 @@ import com.sun.jna.Memory
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.WinDef
-import com.sun.jna.platform.win32.WinNT
+import com.sun.jna.platform.win32.WinNT.HANDLE
+import com.sun.jna.platform.win32.WinNT.PROCESS_CREATE_THREAD
+import com.sun.jna.platform.win32.WinNT.PROCESS_QUERY_INFORMATION
+import com.sun.jna.platform.win32.WinNT.PROCESS_VM_OPERATION
+import com.sun.jna.platform.win32.WinNT.PROCESS_VM_READ
+import com.sun.jna.platform.win32.WinNT.PROCESS_VM_WRITE
 import com.sun.jna.ptr.IntByReference
 import de.darkatra.injector.jna.Psapi
-import java.util.logging.Logger
+import de.darkatra.injector.logging.Logger
+import de.darkatra.injector.logging.NoopLogger
 
-internal object ProcessUtils {
-
-    private val LOGGER = Logger.getLogger(ProcessUtils::class.qualifiedName)
+@PublicApi
+object ProcessUtils {
 
     // x86
     private val IMAGE_FILE_MACHINE_I386: Short = 0x014cu.toShort()
@@ -19,26 +24,22 @@ internal object ProcessUtils {
     // x64
     private val IMAGE_FILE_MACHINE_AMD64: Short = 0x8664u.toShort()
 
-    fun getProcessArchitecture(processHandle: WinNT.HANDLE, moduleBaseAddress: Long): ProcessArchitecture {
+    @PublicApi
+    fun openHandleToProcess(processId: Long): HANDLE? {
 
-        val offsetToPESignature = readInt(
-            processHandle,
-            Pointer.createConstant(moduleBaseAddress + OFFSET_TO_PE_SIGNATURE_POINTER)
+        return Kernel32.INSTANCE.OpenProcess(
+            PROCESS_CREATE_THREAD or
+                PROCESS_QUERY_INFORMATION or
+                PROCESS_VM_OPERATION or
+                PROCESS_VM_READ or
+                PROCESS_VM_WRITE,
+            false,
+            Math.toIntExact(processId)
         )
-
-        val imageFileMachine = readShort(
-            processHandle,
-            Pointer.createConstant(moduleBaseAddress + offsetToPESignature + 4)
-        )
-
-        return when (imageFileMachine) {
-            IMAGE_FILE_MACHINE_I386 -> ProcessArchitecture.X_86
-            IMAGE_FILE_MACHINE_AMD64 -> ProcessArchitecture.X_64
-            else -> throw InjectionException("Unsupported image file machine: $imageFileMachine")
-        }
     }
 
-    fun getRemoteModuleHandle(processHandle: WinNT.HANDLE, name: String): WinDef.HMODULE? {
+    @PublicApi
+    fun getRemoteModuleHandle(processHandle: HANDLE, name: String, logger: Logger = NoopLogger()): WinDef.HMODULE? {
 
         val modules = arrayOfNulls<WinDef.HMODULE>(1024)
         val modulesSizeNeeded = IntByReference()
@@ -55,7 +56,7 @@ internal object ProcessUtils {
         }
 
         if (modulesSizeNeeded.value > modules.size) {
-            LOGGER.warning("Only iterating the first ${modules.size} modules but this process has ${modulesSizeNeeded.value} modules.")
+            logger.warn("Only iterating the first ${modules.size} modules but this process has ${modulesSizeNeeded.value} modules.")
         }
 
         return modules.filterNotNull().firstOrNull { module ->
@@ -63,7 +64,7 @@ internal object ProcessUtils {
             val moduleName = try {
                 ModuleUtils.getModuleName(processHandle, module)
             } catch (e: InjectionException) {
-                LOGGER.warning(e.message)
+                logger.warn("Error finding module by name: ${e.message}")
                 return@firstOrNull false
             }
 
@@ -74,7 +75,8 @@ internal object ProcessUtils {
     /**
      * Reads a 32-bit integer from the given address.
      */
-    fun readInt(processHandle: WinNT.HANDLE, address: Pointer): Int {
+    @PublicApi
+    fun readInt(processHandle: HANDLE, address: Pointer): Int {
 
         return readProcessMemory(
             processHandle,
@@ -88,7 +90,8 @@ internal object ProcessUtils {
     /**
      * Reads a 16-bit integer from the given address.
      */
-    fun readShort(processHandle: WinNT.HANDLE, address: Pointer): Short {
+    @PublicApi
+    fun readShort(processHandle: HANDLE, address: Pointer): Short {
 
         return readProcessMemory(
             processHandle,
@@ -99,7 +102,8 @@ internal object ProcessUtils {
         }
     }
 
-    fun <T> readProcessMemory(processHandle: WinNT.HANDLE, address: Pointer, bytesToRead: Int, mappingFunction: (Memory) -> T): T {
+    @PublicApi
+    fun <T> readProcessMemory(processHandle: HANDLE, address: Pointer, bytesToRead: Int, mappingFunction: (Memory) -> T): T {
 
         return Memory(bytesToRead.toLong()).use { memory ->
 
@@ -115,6 +119,25 @@ internal object ProcessUtils {
             }
 
             mappingFunction(memory)
+        }
+    }
+
+    internal fun getProcessArchitecture(processHandle: HANDLE, moduleBaseAddress: Long): ProcessArchitecture {
+
+        val offsetToPESignature = readInt(
+            processHandle,
+            Pointer.createConstant(moduleBaseAddress + OFFSET_TO_PE_SIGNATURE_POINTER)
+        )
+
+        val imageFileMachine = readShort(
+            processHandle,
+            Pointer.createConstant(moduleBaseAddress + offsetToPESignature + 4)
+        )
+
+        return when (imageFileMachine) {
+            IMAGE_FILE_MACHINE_I386 -> ProcessArchitecture.X_86
+            IMAGE_FILE_MACHINE_AMD64 -> ProcessArchitecture.X_64
+            else -> throw InjectionException("Unsupported image file machine: $imageFileMachine")
         }
     }
 }
