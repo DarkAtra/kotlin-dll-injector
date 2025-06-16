@@ -1,0 +1,29 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        ":dependencyDashboard",
+        ":rebaseStalePrs",
+        ":renovatePrefix",
+        ":semanticCommits",
+        ":labels(dependencies)",
+        "group:allNonMajor",
+        "schedule:weekly"
+    ],
+    "packageRules": [
+        {
+            "allowedVersions": "!/-.+\\.[0-9]+$/",
+            "matchPackageNames": [
+                "*"
+            ]
+        }
+    ],
+    "hostRules": [
+        {
+            "hostType": "maven",
+            "matchHost": "https://maven.pkg.github.com/DarkAtra/",
+            "authType": "Bearer",
+            "token": "{{ secrets.GHCR_READ_PACKAGES }}"
+        }
+    ]
+}
