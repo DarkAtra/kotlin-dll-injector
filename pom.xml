@@ -60,7 +60,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
-        <kotlin.version>2.2.0</kotlin.version>
+        <kotlin.version>2.2.10</kotlin.version>
         <java.version>17</java.version>
 
         <jna.version>5.17.0</jna.version>
