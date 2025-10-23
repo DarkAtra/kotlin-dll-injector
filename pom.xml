@@ -60,7 +60,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
-        <kotlin.version>2.2.20</kotlin.version>
+        <kotlin.version>2.2.21</kotlin.version>
         <java.version>17</java.version>
 
         <jna.version>5.18.1</jna.version>
@@ -68,7 +68,7 @@
 
         <maven-surefire-plugin.version>3.4.0</maven-surefire-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <dokka-maven-plugin.version>2.0.0</dokka-maven-plugin.version>
+        <dokka-maven-plugin.version>2.1.0</dokka-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
     </properties>
