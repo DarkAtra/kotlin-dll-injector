@@ -1,6 +1,7 @@
 package de.darkatra.injector
 
 import com.formdev.flatlaf.FlatLightLaf
+import com.formdev.flatlaf.util.SystemFileChooser
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Rectangle
@@ -13,7 +14,6 @@ import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JComboBox
-import javax.swing.JFileChooser
 import javax.swing.JFrame
 import javax.swing.JOptionPane
 import javax.swing.JPanel
@@ -48,9 +48,8 @@ class Application {
             val dllSelect = JTextField("Absolute Dll Path")
             val dllFileSelectButton = JButton("Select Dll").apply {
                 addActionListener {
-                    JFileChooser().apply {
-                        preferredSize = Dimension(800, 600)
-                        fileSelectionMode = JFileChooser.FILES_ONLY
+                    SystemFileChooser().apply {
+                        fileSelectionMode = SystemFileChooser.FILES_ONLY
                         currentDirectory = File(System.getProperty("user.home") + FileSystems.getDefault().separator + "Desktop")
                         showOpenDialog(null)
                     }.selectedFile?.let { file ->
