@@ -20,7 +20,7 @@ internal interface Psapi : com.sun.jna.platform.win32.Psapi {
         val INSTANCE: Psapi = Native.load("psapi", Psapi::class.java, W32APIOptions.DEFAULT_OPTIONS)
     }
 
-    /**
+    /*
      * See: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocessmodulesex
      *
      * BOOL EnumProcessModulesEx(
@@ -39,7 +39,7 @@ internal interface Psapi : com.sun.jna.platform.win32.Psapi {
         dwFilterFlag: Int
     ): Boolean
 
-    /**
+    /*
      * See: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getmodulebasenamea
      *
      * DWORD GetModuleBaseNameA(
@@ -56,7 +56,7 @@ internal interface Psapi : com.sun.jna.platform.win32.Psapi {
         nSize: Int
     ): Int
 
-    /**
+    /*
      * See: https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getmoduleinformation
      *
      * BOOL GetModuleInformation(
@@ -74,7 +74,7 @@ internal interface Psapi : com.sun.jna.platform.win32.Psapi {
     ): Boolean
 }
 
-/**
+/*
  * See: https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-moduleinfo
  */
 @FieldOrder("lpBaseOfDll", "SizeOfImage", "EntryPoint")
