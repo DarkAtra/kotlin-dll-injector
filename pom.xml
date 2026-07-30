@@ -42,7 +42,7 @@
     <version>dev-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>${artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>A Windows dll injector written in Kotlin.</description>
     <url>https://github.com/DarkAtra/kotlin-dll-injector</url>
 
