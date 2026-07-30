@@ -2,12 +2,16 @@ package de.darkatra.injector
 
 import com.formdev.flatlaf.FlatLightLaf
 import com.formdev.flatlaf.util.SystemFileChooser
+import de.darkatra.injector.logging.LogLevel
+import de.darkatra.injector.logging.Logger
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Rectangle
+import java.awt.TextArea
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
 import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.swing.Box
@@ -18,6 +22,7 @@ import javax.swing.JFrame
 import javax.swing.JOptionPane
 import javax.swing.JPanel
 import javax.swing.JTextField
+import javax.swing.SwingUtilities
 import javax.swing.border.EmptyBorder
 import kotlin.io.path.notExists
 
@@ -29,7 +34,7 @@ class Application {
 
         JFrame().apply {
             title = "Injector"
-            bounds = Rectangle(400, 200)
+            bounds = Rectangle(600, 400)
             defaultCloseOperation = JFrame.EXIT_ON_CLOSE
             setLocationRelativeTo(null)
 
@@ -62,7 +67,16 @@ class Application {
             dllBox.add(dllFileSelectButton, BorderLayout.EAST)
 
             val container = JPanel().apply {
-                setBorder(EmptyBorder(20, 20, 20, 20))
+                setBorder(EmptyBorder(10, 10, 10, 10))
+                layout = BorderLayout(10, 10)
+            }
+
+            val logsArea = TextArea().apply {
+                isEditable = false
+                isFocusable = false
+            }
+
+            val actionContainer = JPanel().apply {
                 layout = BorderLayout(10, 10)
 
                 add(JPanel().apply {
@@ -76,6 +90,7 @@ class Application {
                     JButton("Inject").apply {
                         addActionListener {
 
+                            this.isEnabled = false
                             val processId = processes[processSelect.selectedIndex].pid
                             val dllPath = Path.of(dllSelect.text)
 
@@ -84,12 +99,40 @@ class Application {
                                 return@addActionListener
                             }
 
-                            Injector.injectDll(processId, dllPath)
+                            CompletableFuture.supplyAsync {
+                                Injector.injectDll(processId, dllPath, object : Logger {
+                                    override fun log(level: LogLevel, message: String, throwable: Throwable?) {
+                                        SwingUtilities.invokeLater {
+                                            logsArea.append(
+                                                buildString {
+                                                    append(level.name)
+                                                    append(" - ")
+                                                    append(message)
+                                                    if (throwable != null) {
+                                                        append(" - ")
+                                                        append(throwable.message)
+                                                    }
+                                                    append("\n")
+                                                }
+                                            )
+                                        }
+                                    }
+                                })
+                            }.thenRun {
+                                SwingUtilities.invokeLater { this.isEnabled = true }
+                            }.exceptionally {
+                                SwingUtilities.invokeLater { this.isEnabled = true }
+                                return@exceptionally null
+                            }
                         }
                     },
                     BorderLayout.SOUTH
                 )
             }
+
+            container.add(logsArea)
+            container.add(actionContainer, BorderLayout.SOUTH)
+
             add(container)
 
             isVisible = true

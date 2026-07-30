@@ -7,6 +7,7 @@ import com.sun.jna.platform.win32.BaseTSD
 import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.WinNT.HANDLE
 import com.sun.jna.platform.win32.WinNT.MEM_COMMIT
+import com.sun.jna.platform.win32.WinNT.MEM_RELEASE
 import com.sun.jna.platform.win32.WinNT.MEM_RESERVE
 import com.sun.jna.platform.win32.WinNT.PAGE_EXECUTE_READWRITE
 import de.darkatra.injector.logging.Logger
@@ -64,7 +65,22 @@ object Injector {
             null
         ) ?: throw InjectionException("Failed to create remote process, error code: ${Kernel32.INSTANCE.GetLastError()}")
 
-        logger.trace("* Created remote thread to load the dll.")
+        logger.trace("* Created remote thread to load the dll. Waiting until it completes...")
+
+        // wait for remote thread to complete
+        when (val threadExitCode = Kernel32.INSTANCE.WaitForSingleObject(remoteThread, Kernel32.INFINITE)) {
+            Kernel32.WAIT_OBJECT_0 -> logger.trace("* Remote thread completed.")
+            Kernel32.WAIT_FAILED -> logger.warn("* Could not wait for remote thread, error code: ${Kernel32.INSTANCE.GetLastError()}")
+            // WAIT_ABANDONED and WAIT_TIMEOUT should never occur in this case
+            else -> logger.warn("* Unknown error waiting for remote thread, thread exit code: $threadExitCode")
+        }
+
+        // free allocated memory for dll path string
+        logger.trace("* Freeing allocated bytes for the ddl path string.")
+        when {
+            freeMemoryForString(processHandle, dllMemoryPointer) -> logger.trace("* Successfully freed allocated bytes for the ddl path string.")
+            else -> logger.warn("* Failed to free allocated bytes for the ddl path string, error code: ${Kernel32.INSTANCE.GetLastError()}")
+        }
 
         Kernel32.INSTANCE.CloseHandle(remoteThread)
         Kernel32.INSTANCE.CloseHandle(processHandle)
@@ -80,6 +96,16 @@ object Injector {
             BaseTSD.SIZE_T(getMemorySizeOfString(string)),
             MEM_RESERVE or MEM_COMMIT,
             PAGE_EXECUTE_READWRITE
+        )
+    }
+
+    private fun freeMemoryForString(processHandle: HANDLE, memoryPointer: Pointer): Boolean {
+
+        return Kernel32.INSTANCE.VirtualFreeEx(
+            processHandle,
+            memoryPointer,
+            BaseTSD.SIZE_T(0),
+            MEM_RELEASE
         )
     }
 
