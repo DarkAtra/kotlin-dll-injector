@@ -16,6 +16,12 @@
             "matchPackageNames": [
                 "*"
             ]
+        },
+        {
+            "matchPackagePatterns": [
+                "de.darkatra.injector:*"
+            ],
+            "enabled": false
         }
     ],
     "hostRules": [
