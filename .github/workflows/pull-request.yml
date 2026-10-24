@@ -6,6 +6,7 @@ on:
       - '**/src/**'
       - '**/pom.xml'
       - 'pom.xml'
+      - 'native-test-fixtures/**'
 
 permissions:
   contents: read
@@ -29,3 +30,37 @@ jobs:
 
       - name: Run Tests
         run: mvn -B -ntp clean install
+
+  windows-integration:
+    name: Windows Injection Tests
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup Java
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build x86 fixtures
+        working-directory: native-test-fixtures
+        run: |
+          cmake --preset x86
+          cmake --build --preset x86-release
+
+      - name: Build x64 fixtures
+        working-directory: native-test-fixtures
+        run: |
+          cmake --preset x64
+          cmake --build --preset x64-release
+
+      - name: Run unit and injection tests
+        run: >-
+          .\mvnw.cmd -B -ntp clean install
+          "-Dinjector.fixture.x86.exe=$env:GITHUB_WORKSPACE\native-test-fixtures\build\x86\bin\injection-target.exe"
+          "-Dinjector.fixture.x86.dll=$env:GITHUB_WORKSPACE\native-test-fixtures\build\x86\bin\injector-fixture.dll"
+          "-Dinjector.fixture.x64.exe=$env:GITHUB_WORKSPACE\native-test-fixtures\build\x64\bin\injection-target.exe"
+          "-Dinjector.fixture.x64.dll=$env:GITHUB_WORKSPACE\native-test-fixtures\build\x64\bin\injector-fixture.dll"
