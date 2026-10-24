@@ -1,7 +1,6 @@
 package de.darkatra.injector
 
 import com.sun.jna.Memory
-import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.BaseTSD
 import com.sun.jna.platform.win32.Kernel32
@@ -12,15 +11,17 @@ import com.sun.jna.platform.win32.WinNT.MEM_RESERVE
 import com.sun.jna.platform.win32.WinNT.PAGE_EXECUTE_READWRITE
 import de.darkatra.injector.logging.Logger
 import de.darkatra.injector.logging.NoopLogger
-import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.isReadable
 
 @PublicApi
 object Injector {
 
     @PublicApi
     fun injectDll(processId: Long, dllPath: Path, logger: Logger = NoopLogger()) {
+
+        validateDllPath(dllPath)
 
         val dllPathString = dllPath.absolutePathString()
 
@@ -88,6 +89,13 @@ object Injector {
         logger.info("Successfully injected '$dllPathString' into process with id '$processId'.")
     }
 
+    private fun validateDllPath(dllPath: Path) {
+
+        if (!dllPath.isReadable()) {
+            throw InjectionException("DLL does not exist or is not a regular file: '${dllPath.absolutePathString()}'")
+        }
+    }
+
     private fun allocateMemoryForString(processHandle: HANDLE, string: String): Pointer? {
 
         return Kernel32.INSTANCE.VirtualAllocEx(
@@ -111,9 +119,11 @@ object Injector {
 
     private fun writeStringToMemory(processHandle: HANDLE, memoryPointer: Pointer, string: String): Boolean {
 
+        val stringBytes = AnsiEncoding.encodePath(string)
         val stringLength = getMemorySizeOfString(string)
         return Memory(stringLength).use { memory ->
-            memory.setString(0, string, StandardCharsets.UTF_8.name())
+            memory.clear()
+            memory.write(0, stringBytes, 0, stringBytes.size)
 
             Kernel32.INSTANCE.WriteProcessMemory(
                 processHandle,
@@ -126,6 +136,6 @@ object Injector {
     }
 
     private fun getMemorySizeOfString(string: String): Long {
-        return Native.toByteArray(string, StandardCharsets.UTF_8).size + 1L
+        return AnsiEncoding.encodePath(string).size + 1L
     }
 }
