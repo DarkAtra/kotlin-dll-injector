@@ -19,6 +19,20 @@ import kotlin.io.path.isReadable
 object Injector {
 
     @PublicApi
+    fun injectDllIntoSuspendedProcess(processId: Long, dllPath: Path, logger: Logger = NoopLogger()) {
+
+        validateDllPath(dllPath)
+
+        val dllPathString = dllPath.absolutePathString()
+
+        logger.info("Attempting to add '$dllPathString' to the suspended process import table...")
+
+        SuspendedProcessInjector.inject(processId, dllPathString, logger)
+
+        logger.info("Successfully added '$dllPathString' to the suspended process import table.")
+    }
+
+    @PublicApi
     fun injectDll(processId: Long, dllPath: Path, logger: Logger = NoopLogger()) {
 
         validateDllPath(dllPath)
