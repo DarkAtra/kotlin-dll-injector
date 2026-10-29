@@ -5,6 +5,8 @@ import com.sun.jna.platform.win32.WinBase.PROCESS_INFORMATION
 import com.sun.jna.platform.win32.WinBase.STARTUPINFO
 import com.sun.jna.platform.win32.WinDef.DWORD
 import de.darkatra.injector.jna.Kernel32
+import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.Timeout
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -12,8 +14,6 @@ import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import org.junit.jupiter.api.Assumptions.assumeTrue
-import org.junit.jupiter.api.Timeout
 
 class InjectorIntegrationTest {
 

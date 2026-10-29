@@ -32,7 +32,8 @@ cmake --build --preset vs2026-x64-release
 Pop-Location
 ```
 
-The Visual Studio 2022 outputs are written below `build/x86` and `build/x64`; the Visual Studio 18 outputs are below `build/vs2026-x86` and `build/vs2026-x64`. For Visual Studio 18, run the Maven tests with these fixture paths:
+The Visual Studio 2022 outputs are written below `build/x86` and `build/x64`; the Visual Studio 18 outputs are below `build/vs2026-x86` and `build/vs2026-x64`.
+For Visual Studio 18, run the Maven tests with these fixture paths:
 
 ```powershell
 $x86Fixtures = (Resolve-Path '.\native-test-fixtures\build\vs2026-x86\bin').Path
@@ -46,7 +47,8 @@ $x64Fixtures = (Resolve-Path '.\native-test-fixtures\build\vs2026-x64\bin').Path
 
 For Visual Studio 2022, use the corresponding `build/x86/bin` and `build/x64/bin` directories instead.
 
-Without fixture properties, the unit tests still run and the Windows process-injection tests are skipped. The fixture DLL writes a marker file from `DllMain`; the tests do not display UI or depend on an interactive desktop.
+Without fixture properties, the unit tests still run and the Windows process-injection tests are skipped. The fixture DLL writes a marker file from `DllMain`;
+the tests do not display UI or depend on an interactive desktop.
 
 ## References
 

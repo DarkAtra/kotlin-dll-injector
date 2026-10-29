@@ -1,55 +1,55 @@
 {
-  "version": 6,
-  "configurePresets": [
-    {
-      "name": "x86",
-      "displayName": "Windows x86 fixtures",
-      "generator": "Visual Studio 17 2022",
-      "architecture": "Win32",
-      "binaryDir": "${sourceDir}/build/x86"
-    },
-    {
-      "name": "x64",
-      "displayName": "Windows x64 fixtures",
-      "generator": "Visual Studio 17 2022",
-      "architecture": "x64",
-      "binaryDir": "${sourceDir}/build/x64"
-    },
-    {
-      "name": "vs2026-x86",
-      "displayName": "Windows x86 fixtures (Visual Studio 18 2026)",
-      "generator": "Visual Studio 18 2026",
-      "architecture": "Win32",
-      "binaryDir": "${sourceDir}/build/vs2026-x86"
-    },
-    {
-      "name": "vs2026-x64",
-      "displayName": "Windows x64 fixtures (Visual Studio 18 2026)",
-      "generator": "Visual Studio 18 2026",
-      "architecture": "x64",
-      "binaryDir": "${sourceDir}/build/vs2026-x64"
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "x86-release",
-      "configurePreset": "x86",
-      "configuration": "Release"
-    },
-    {
-      "name": "x64-release",
-      "configurePreset": "x64",
-      "configuration": "Release"
-    },
-    {
-      "name": "vs2026-x86-release",
-      "configurePreset": "vs2026-x86",
-      "configuration": "Release"
-    },
-    {
-      "name": "vs2026-x64-release",
-      "configurePreset": "vs2026-x64",
-      "configuration": "Release"
-    }
-  ]
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "x86",
+            "displayName": "Windows x86 fixtures",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "Win32",
+            "binaryDir": "${sourceDir}/build/x86"
+        },
+        {
+            "name": "x64",
+            "displayName": "Windows x64 fixtures",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/build/x64"
+        },
+        {
+            "name": "vs2026-x86",
+            "displayName": "Windows x86 fixtures (Visual Studio 18 2026)",
+            "generator": "Visual Studio 18 2026",
+            "architecture": "Win32",
+            "binaryDir": "${sourceDir}/build/vs2026-x86"
+        },
+        {
+            "name": "vs2026-x64",
+            "displayName": "Windows x64 fixtures (Visual Studio 18 2026)",
+            "generator": "Visual Studio 18 2026",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/build/vs2026-x64"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "x86-release",
+            "configurePreset": "x86",
+            "configuration": "Release"
+        },
+        {
+            "name": "x64-release",
+            "configurePreset": "x64",
+            "configuration": "Release"
+        },
+        {
+            "name": "vs2026-x86-release",
+            "configurePreset": "vs2026-x86",
+            "configuration": "Release"
+        },
+        {
+            "name": "vs2026-x64-release",
+            "configurePreset": "vs2026-x64",
+            "configuration": "Release"
+        }
+    ]
 }
